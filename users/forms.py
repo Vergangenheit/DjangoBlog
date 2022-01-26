@@ -6,7 +6,7 @@ from typing import Optional
 
 
 class RegisterForm(UserCreationForm):
-    username = forms.CharField(label='Enter Username', min_length=4, max_length=50, help_text='Required')
+    username = forms.CharField(label='Enter Username', min_length=4, max_length=50)
     email = forms.EmailField(label="Enter Email")
 
     class Meta:
