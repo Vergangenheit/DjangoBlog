@@ -1,11 +1,11 @@
 from django.shortcuts import render, redirect
 from django.http.request import HttpRequest
-from django.http.response import HttpResponse, HttpResponseRedirect
+from django.http.response import HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect
 from .forms import RegisterForm
 from typing import Union
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.models import User
 
 
@@ -44,3 +44,9 @@ def login_request(request: HttpRequest) -> Union[HttpResponseRedirect, HttpRespo
     form = AuthenticationForm()
 
     return render(request=request, template_name="users/login.html", context={'form': form})
+
+
+def logout_request(request: HttpRequest) -> Union[HttpResponseRedirect, HttpResponsePermanentRedirect]:
+    logout(request)
+    messages.info(request, "You have succesfully logged out.")
+    return redirect("blog-home")
