@@ -64,9 +64,7 @@ def password_reset_request(request: HttpRequest) -> Union[
     if request.method == "POST":
         password_reset_form = PasswordResetForm(request.POST)
         if password_reset_form.is_valid():
-            data = password_reset_form.cleaned_data['email']
-            # TODO remove below
-            print(f"data is of type {type(data)}")
+            data: str = password_reset_form.cleaned_data['email']
             associated_users: QuerySet = User.objects.filter(Q(email=data))
             if associated_users.exists():
                 for user in associated_users:
@@ -86,8 +84,10 @@ def password_reset_request(request: HttpRequest) -> Union[
                         send_mail(subject, email, 'admin@example.com', [user.email], fail_silently=False)
                     except BadHeaderError:
                         return HttpResponse('Invalid header found.')
+                    # messages.success(request, "A message with reset password instructions has been sent to your inbox.")
                     return redirect("password_reset_done")
-
+            else:
+                messages.error(request, 'An invalid email has been entered.')
     password_reset_form = PasswordResetForm()
     return render(request=request, template_name="users/password_reset.html",
                   context={'password_reset_form': password_reset_form})
