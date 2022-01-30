@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect
 from django.http.request import HttpRequest
-from django.http.response import HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect
-from .forms import RegisterForm
-from typing import Union
+from django.http.response import HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect, HttpResponseNotAllowed
+from .forms import RegisterForm, ProfileUpdateForm, UserUpdateForm
+from .models import UserProfile
+from typing import Union, List, Dict
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm, PasswordResetForm
 from django.contrib.auth import login, authenticate, logout
@@ -14,6 +15,8 @@ from django.contrib.auth.tokens import default_token_generator
 from django.utils.encoding import force_bytes
 from django.template.loader import render_to_string
 from django.core.mail import send_mail, BadHeaderError
+from django.contrib.auth.decorators import login_required
+from django.views import View
 
 
 # Create your views here.
@@ -91,3 +94,19 @@ def password_reset_request(request: HttpRequest) -> Union[
     password_reset_form = PasswordResetForm()
     return render(request=request, template_name="users/password_reset.html",
                   context={'password_reset_form': password_reset_form})
+
+
+@login_required
+def profile(request: HttpRequest) -> Union[HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect]:
+    if request.POST:
+        u_form = UserUpdateForm(request.POST, instance=request.user)
+        p_form = ProfileUpdateForm(request.POST, files=request.FILES, instance=request.user.profile)
+        if u_form.is_valid() and p_form.is_valid():
+            u_form.save()
+            p_form.save()
+            messages.success(request, 'Your account has been updated!')
+            return redirect('account')
+    else:
+        u_form = UserUpdateForm(instance=request.user)
+        p_form = ProfileUpdateForm(instance=request.user.profile)
+        return render(request, 'users/account.html', {'u_form': u_form, 'p_form':p_form})
