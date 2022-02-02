@@ -39,6 +39,8 @@ def login_request(request: HttpRequest) -> Union[HttpResponseRedirect, HttpRespo
     if request.method == "POST":
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
+            # TODO remove below
+            print("form is valid")
             username: str = form.cleaned_data.get('username')
             password: str = form.cleaned_data.get('password')
             user: User = authenticate(username=username, password=password)
@@ -49,7 +51,7 @@ def login_request(request: HttpRequest) -> Union[HttpResponseRedirect, HttpRespo
             else:
                 messages.error(request, "Invalid username or password.")
         else:
-            messages.error(request, "Invalid username or password.")
+            messages.error(request, f"Invalid username or password.")
 
     form = AuthenticationForm()
 
